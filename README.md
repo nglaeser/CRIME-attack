@@ -6,7 +6,7 @@ Presented: 26 Sep 2019
 
 ## Dependencies
 
-* nginx
+* nginx with SSL compression: for example nginx 1.0.6
 * a vulnerable browser: Chrome v xx on a virtual machine running Ubuntu 14.04.
 
 ## Set Up
@@ -94,7 +94,7 @@ Now we just need to get the user (of a vulnerable browser, i.e. one that has SSL
 * Set enough memory, provided your host machine can afford it, so the VM won't lag painfully. I set it at 4096 MB. 
 * Once the machine is running, repeat step 1.1 with the VM's `/etc/hosts`.
 
-3. Install the vulnerable browser on your VM. It seems only Chrome was every truly vulnerable to CRIME, so in this demo I used [Chrome v xx](https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F100002%2Fchrome-linux.zip?generation=1&alt=media).
+3. Install the vulnerable browser on your VM. It seems only Chrome (/Chromium) was every truly vulnerable to CRIME, so in this demo I used [Chrome (Chromium) v 15.0.875.0](https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F100002%2Fchrome-linux.zip?generation=1&alt=media).
 * Download the ZIP file
 * Extract its contents
 * run `./chrome-wrapper` in the terminal
@@ -102,6 +102,17 @@ Now we just need to get the user (of a vulnerable browser, i.e. one that has SSL
 [ will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP]
 
 ### 3. Simulate the attack and observe traffic
+
+1. [Download Wireshark](https://www.wireshark.org/download.html) and open it.
+* On the first page that pops up, pick "Loopback: lo0" as your interface. Now you're capturing!
+* For readability, apply `ssl` as the display filter by entering it into the text box at the top.
+
+2. In Chromium in the VM, access https://www.faceb00k.com.
+* If the page doesn't load, make sure you've run `nginx` on your host.
+* In Wireshark, you should see a "Client Hello" packet. In the TLS header, you should see DEFLATE listed as a compression method:  
+[!Compression Methods](compressionheader.png)
+
+3. Now navigate to www.cookies.com.
 
 ### 4. Proof of concept of incremental cookie discovery
 
