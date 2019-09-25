@@ -70,9 +70,26 @@ http {
 sudo nginx -s reload
 ```
 
+4. Serve the sites on localhost, e.g. with
+
+```
+python -m SimpleHTTPServer 80
+```
+
+Actually, it seems like you don't need to do [4] at all.
+
 ### Access through a vulnerable browser
 
 Now we just need to get the user (of a vulnerable browser, i.e. one that has SSL compression enabled) to be logged into faceb00k.com *and* access our evil site cookies.com. Then we can steal their faceb00k cookies!
+
+[ will update with info ]
+
+### Proof of concept of incremental cookie discovery
+
+I made some slight edits to this script to improve demo-ability, namely adding colors and pauses. Run with  
+```
+python crime.py
+```
 
 ...  
 
