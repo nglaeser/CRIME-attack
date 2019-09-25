@@ -1,0 +1,6 @@
+# junk generated files
+.DS_Store
+*.swp
+
+# certificate and key files
+*.pem
