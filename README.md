@@ -7,7 +7,7 @@ Presented: 26 Sep 2019
 ## Dependencies
 
 * nginx with SSL compression: for example nginx 1.0.6
-* a vulnerable browser: Chrome v xx on a virtual machine running Ubuntu 14.04.
+* a vulnerable browser: Chrome v 15.0.0875.0 on a virtual machine running Ubuntu 14.04.
 
 ## Set Up
 
@@ -49,15 +49,24 @@ openssl version -f | grep DZLIB
 ```
 
 5. Install an nginx version that supports SSL compression, such as [nginx 1.0.6](http://nginx.org/download/). 
-* See [this article](https://www.thegeekstuff.com/2011/07/install-nginx-from-source/) about installing nginx from source. When you get to the config step, here are the options I used:  
+* See [this article](https://www.thegeekstuff.com/2011/07/install-nginx-from-source/) about installing nginx from source. Here are the commands and options I used:  
 ```
-./configure --with-http_ssl_module --without-http_rewrite_module --with-openssl=/usr/lib/ssl
+./configure --with-http_ssl_module --without-http_rewrite_module --with-openssl=~/Downloads/openssl-1.0.2t
+make
+make install
+
+# I had to make an alias for the binary
+alias nginx=/usr/local/nginx/sbin/nginx
+
+# Make a backup of the original config file; we will modify it in the next section
+cp /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf-bak
 ```
 
 [ will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP]
-### 1. Setting up the sites
 
-Serve the contents of the faceb00k and cookies sites as follows.
+### 2. Setting up the sites
+
+On the VM, serve the contents of the faceb00k and cookies sites as follows.
 
 1. Add the following localhost aliases to `/etc/hosts` (you may need to `sudo` edit):
 
@@ -75,7 +84,9 @@ Serve the contents of the faceb00k and cookies sites as follows.
 openssl req -x509 -sha256 -nodes -newkey rsa:2048 -days 365 -keyout faceb00k1.key -out faceb00k1.crt
 ```
 
-2. Add the servers to your `nginx.conf` (mine was located in `/usr/local/etc/nginx/nginx.conf`), or wherever else you put your servers. A sample `nginx.conf` can be found in this repo.
+and answer the prompts.
+
+2. Add the servers to your `nginx.conf` (mine was located in `/usr/local/nginx/conf/nginx.conf`), or wherever else you put your servers. A sample `nginx.conf` can be found in this repo.
 
 
 ```
@@ -121,16 +132,9 @@ nginx
 sudo nginx -s reload
 ```
 
-[you don't have to do step 4]
-4. Serve the sites on localhost, e.g. with
-
-```
-python -m SimpleHTTPServer 80
-```
-
-Actually, it seems like you don't need to do [4] at all.
-
 ### 3. Simulate the attack and observe traffic
+
+[ Troubleshooting here now. Status: can't capture packets from VM, and don't want to install Wireshark on the VM. ]
 
 1. [Download Wireshark](https://www.wireshark.org/download.html) and open it.
 * On the first page that pops up, pick "Loopback: lo0" as your interface. Now you're capturing!
