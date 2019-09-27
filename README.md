@@ -1,15 +1,27 @@
 Noemi Glaeser  
 CMSC 818O: Security (Fall 2019)  
-Presented: 26 Sep 2019  
+Presented: 1 Oct 2019  
 
 # CRIME Attack Demo  
 
+## To do
+
+will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP, nginx-1.\*.6.tar.gz, openssl-0.9.\*.tar.gz
+
+Current issue: despite OpenSSL compiled with `DZLIB`, Server Hello still offers no compression methods.  
+Right now, I see these options:  
+- try with nginx 1.1.6 instead, or newer
+
 ## Dependencies
 
-Installation of these dependencies is described in the [Set Up section](#set-up); all source files/binaries are available in the [binaries folder](./binaries).
+Installation of these dependencies is described in the [Set Up](#set-up) section; all source files/binaries are available in the [binaries folder](./binaries).
 
-* **nginx with SSL compression:** for example nginx 1.0.6 [or 1.1.6?]
-* **a browser with SSL compression:** Chrome 15.0.0875.0 on a virtual machine running Ubuntu 14.04.
+* **nginx:** for example [nginx 1.0.6]() (or [1.1.6]()?)
+* **an outdated version of OpenSSL:** [openssl-0.9.8zb]() and [openssl-0.9.7]()
+* **a browser with SSL compression:** [Chrome 15.0.0875.0]()
+* **a Linux virtual machine to run everything in:** for example [Ubuntu 14.04 LTS]()
+
+A VM image is available with all of this configuration already done ([here]()). If you choose to go that route, skip to [this section]().
 
 ## Set Up
 
@@ -85,10 +97,6 @@ alias nginx=/usr/local/nginx/sbin/nginx
 cp /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf-bak
 ```
 
-[ will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP, nginx-1.\*.6.tar.gz, openssl-0.9.\*.tar.gz ]
-
-[ Right now, I see these options:  
-- try with nginx 1.1.6 instead, or newer ]
 
 ### 5. Setting up the mock sites
 
@@ -177,12 +185,12 @@ reboot
 1. Open Wireshark (not through the commandline, just as usual through the GUI).
 * On the first page that pops up, pick "Loopback: lo0" as your interface. Now you're capturing on localhost!
 
-#### Some useful display filters:
-
-Apply display filters by entering them into the text box at the top of the Wireshark GUI.  
-* **ssl**: view only SSL/TLS packets (useful for seeing the TLS handshake)
-* **tcp.dstport == 443 and ssl**: view only packets sent to the HTTPS site (to compare (post-compression and post-encryption) packet lengths with different injected cookie guesses)
-* **http contains GET**: view only HTTP GET requests (useful if you turn off SSL and want to see the plaintext, pre-compression and pre-encryption packets sent with the cookie guesses)
+>#### Some useful display filters:
+>
+>Apply display filters by entering them into the text box at the top of the Wireshark GUI.  
+>* **ssl**: view only SSL/TLS packets (useful for seeing the TLS handshake)
+>* **tcp.dstport == 443 and ssl**: view only packets sent to the HTTPS site (to compare (post-compression and post-encryption) packet lengths with different injected cookie guesses)
+>* **http contains GET**: view only HTTP GET requests (useful if you turn off SSL and want to see the plaintext, pre-compression and pre-encryption packets sent with the cookie guesses)
 
 2. Open Chromium and access https://www.faceb00k.com.
 * If the page doesn't load, make sure you've run `nginx` to start the servers. 
