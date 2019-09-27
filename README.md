@@ -6,7 +6,7 @@ Presented: 26 Sep 2019
 
 ## Dependencies
 
-* nginx with SSL compression: for example nginx 1.0.6
+* nginx with SSL compression: for example nginx 1.0.6 [or 1.1.6?]
 * a vulnerable browser: Chrome v 15.0.0875.0 on a virtual machine running Ubuntu 14.04.
 
 ## Set Up
@@ -27,33 +27,64 @@ Presented: 26 Sep 2019
 
 4. Install OpenSSL with zlib support as described [here](https://securitygrind.com/building-openssl-with-zlib-support/). Summary below:
 ```
-# install any existing OpenSSL
+# uninstall any existing OpenSSL
 apt-get remove openssl
 apt-get purge openssl
 
 cd Downloads
 wget https://www.openssl.org/source/openssl-1.0.2t.tar.gz
+# wget https://www.openssl.org/source/old/1.0.0/openssl-1.0.0.tar.gz # try an even older version
+# wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.8zh.tar.gz # try this with nginx 1.0.6, has DZLIB flag - doesn't work??
+# same with nginx 1.1.6 instead
+# this also doesn't have the DZLIB flag??
+
+# wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.8.tar.gz # won't compile properly
+# wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.8x.tar.gz # won't compile properly
+# wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.7.tar.gz # doesn't have DZLIB flag in vrsion -f
+# wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.8n.tar.gz # also won't compile properly
+# wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.8za.tar.gz # also won't compile properly
+wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.8zb.tar.gz
 apt-get install zlib1g-dev
 tar xvf openssl-1.0.2t.tar.gz
-cd openssl-1.0.2t.tar.gz
-./config zlib
+cd openssl-1.0.2t
+./config zlib # no-md5 # for openssl 0.9.8
 make
-make install
+sudo make install
 
 # I had to do this additional step:
-mv ~/Downloads/openssl-1.0.2t/apps/openssl /usr/bin/openssl
+# mv ~/Downloads/openssl-1.0.2t/apps/openssl /usr/bin/openssl
 # mv ~/Downloads/openssl-1.0.2t/ssl /usr/lib/ssl
 
 # double check that openssl has zlib capabilities
-openssl version -f | grep DZLIB
+~/Downloads/openssl-1.0.2t/apps/openssl version -f | grep DZLIB
+
+~/Downloads/openssl-1.0.2t/apps/openssl version -a
+```
+
+Output from last command:
+```
+OpenSSL 0.9.8zb 6 Aug 2014
+built on: Fri Sep 27 01:59:42 EDT 2019
+platform: linux-x86_64
+options:  bn(64,64) md2(int) rc4(1x,char) des(idx,cisc,16,int) idea(int) blowfish(idx) 
+compiler: gcc -DZLIB -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -Wa,--noexecstack -m64 -DL_ENDIAN -DTERMIO -O3 -Wall -DMD32_REG_T=int -DOPENSSL_BN_ASM_MONT -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DAES_ASM
+OPENSSLDIR: "/usr/local/ssl"
 ```
 
 5. Install an nginx version that supports SSL compression, such as [nginx 1.0.6](http://nginx.org/download/). 
-* See [this article](https://www.thegeekstuff.com/2011/07/install-nginx-from-source/) about installing nginx from source. Here are the commands and options I used:  
+
+[ Now trying 1.1.6 and looking for SSL\_OP\_NO\_COMPRESSION in source ]
+
+* See [this article](https://www.thegeekstuff.com/2011/07/install-nginx-from-source/) about installing nginx from source. Here are the commands and options I used (use `sudo` as necessary):  
 ```
-./configure --with-http_ssl_module --without-http_rewrite_module --with-openssl=~/Downloads/openssl-1.0.2t
-make
-make install
+#./configure --with-http_ssl_module --without-http_rewrite_module --with-openssl=~/Downloads/openssl-0.9.8zh # could it be that passing the openssl flag makes it recompile ssl with the wrong flags? yes, apparently
+#ln -s /home/noemi/Downloads/openssl-0.9.8zb/apps/openssl /usr/bin/openssl
+#./configure --with-http_ssl_module --without-http_rewrite_module --with-cc-opt="-DZLIB" --with-openssl=~/Downloads/openssl-0.9.8zb # set --with-cc-opt to pass DZLIB option to the openssl compiler so it doesn't get removed # this doesn't work either
+#sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L/usr/local/ssl/lib" # try to set link to source and libraries instead of to source (which would cause a fresh re-compile) # also doesn't work, still complains it can't find openssl
+ln -s /usr/local/ssl/lib /usr/local/lib/openssl
+#sudo ./configure --with-http_ssl_module --without-http_rewrite_module
+sudo make
+sudo make install
 
 # I had to make an alias for the binary
 alias nginx=/usr/local/nginx/sbin/nginx
@@ -62,7 +93,12 @@ alias nginx=/usr/local/nginx/sbin/nginx
 cp /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf-bak
 ```
 
-[ will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP]
+[ will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP, nginx-1.*.6.tar.gz, openssl-0.9.*.tar.gz ]
+
+[ Right now, I see two avenues:  
+- run the nginx `./configure` with `--with-openssl` and find a way to pass the `-DZLIB` flag into the openssl configuration/make  
+- find a way to specify the path to the openssl library to the nginx `./configure`
+- try with nginx 1.1.6 instead, or newer ]
 
 ### 2. Setting up the sites
 
@@ -157,5 +193,15 @@ python crime.py
 ...  
 
 
-Wireshark display filter: `tcp.dstport == 443 and ssl`
+Wireshark display filter: `tcp.dstport == 443 and ssl`  
 Another useful filter for unencrypted (HTTP) faceb00k server debugging: `http contains GET` (won't be compressed though)
+
+## New try
+
+### Apache
+
+See [this article](https://geekflare.com/apache-setup-ssl-certificate/). Configure Apache with  
+
+```
+./configure --enable-ssl –-enable-so --with-ssl=/path/to/openssl
+```
