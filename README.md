@@ -8,9 +8,10 @@ Presented: 1 Oct 2019
 
 will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP, nginx-1.\*.6.tar.gz, openssl-0.9.\*.tar.gz
 
-Current issue: despite OpenSSL compiled with `DZLIB`, Server Hello still offers no compression methods.  
+**Current issue:** despite OpenSSL compiled with `DZLIB`, Server Hello still offers no compression methods.  
 Right now, I see these options:  
 - try with nginx 1.1.6 instead, or newer
+- Watch [Rizzo & Duong demo](https://www.youtube.com/watch?v=BysvLotMrwY&index=13&list=PLaIv9WEAzYZPWxpP3fNyEW77EnCFt1vzl)
 
 ## Dependencies
 
@@ -36,7 +37,7 @@ A VM image is available with all of this configuration already done ([here]()). 
 
 ### 2. Vulnerable Browser
 
-Install the vulnerable browser on your VM. It seems only Chrome (or Chromium) was every truly vulnerable to CRIME, so in this demo I used [Chrome (Chromium) 15.0.875.0](https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F100002%2Fchrome-linux.zip?generation=1&alt=media).
+Install the vulnerable browser on your VM. It seems only Chrome (or Chromium) was every truly vulnerable to CRIME, so in this demo I used [Chromium 15.0.875.0](https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F100002%2Fchrome-linux.zip?generation=1&alt=media).
 
 ```
 wget https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F100002%2Fchrome-linux.zip?generation=1&alt=media
@@ -54,8 +55,10 @@ Install OpenSSL with zlib support as described [here](https://securitygrind.com/
 apt-get remove openssl
 apt-get purge openssl
 
+# download the zlib library
 apt-get install zlib1g-dev
 
+# install openssl
 cd Downloads
 wget https://www.openssl.org/source/old/0.9.x/openssl-0.9.8zb.tar.gz
 tar xvf openssl-0.9.8zb.tar.gz
@@ -165,12 +168,12 @@ sudo nginx -s reload
 
 ### 6. Wireshark
 
-Install Wireshark (on the VM).  
+Install Wireshark (on the VM, as with everything else).  
 
 ```
 sudo apt-get install wireshark
 
-# don't remember why I did this stuff
+# don't remember why I did this stuff but it's necessary
 sudo dpkg-reconfigure wireshark-common
 sudo usermod -a -G wireshark $
 reboot
@@ -185,17 +188,17 @@ reboot
 1. Open Wireshark (not through the commandline, just as usual through the GUI).
 * On the first page that pops up, pick "Loopback: lo0" as your interface. Now you're capturing on localhost!
 
->#### Some useful display filters:
+> #### Some useful display filters:
 >
->Apply display filters by entering them into the text box at the top of the Wireshark GUI.  
->* **ssl**: view only SSL/TLS packets (useful for seeing the TLS handshake)
->* **tcp.dstport == 443 and ssl**: view only packets sent to the HTTPS site (to compare (post-compression and post-encryption) packet lengths with different injected cookie guesses)
->* **http contains GET**: view only HTTP GET requests (useful if you turn off SSL and want to see the plaintext, pre-compression and pre-encryption packets sent with the cookie guesses)
+> Apply display filters by entering them into the text box at the top of the Wireshark GUI.  
+> * **ssl**: view only SSL/TLS packets (useful for seeing the TLS handshake)
+> * **tcp.dstport == 443 and ssl**: view only packets sent to the HTTPS site (to compare (post-compression and post-encryption) packet lengths with different injected cookie guesses)
+> * **http contains GET**: view only HTTP GET requests (useful if you turn off SSL and want to see the plaintext, pre-compression and pre-encryption packets sent with the cookie guesses)
 
 2. Open Chromium and access https://www.faceb00k.com.
 * If the page doesn't load, make sure you've run `nginx` to start the servers. 
 * In Wireshark (with the `ssl` filter), you should see a "Client Hello" packet. In the TLS header, you should see DEFLATE listed as a compression method:  
-[!Compression Methods](compressionheader.png)
+![Compression Methods](compressionheader.png)
 * Now look at the "Server Hello" packet. Similarly, DEFLATE should be listed as a compression method in the TLS header. [I'm still having problems getting this part to work]
 
 3. Now navigate to www.cookies.com.
@@ -209,5 +212,3 @@ reboot
 ```
 python crime.py
 ```
-
-...  
