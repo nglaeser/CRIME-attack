@@ -81,8 +81,9 @@ OPENSSLDIR: "/usr/local/ssl"
 #ln -s /home/noemi/Downloads/openssl-0.9.8zb/apps/openssl /usr/bin/openssl
 #./configure --with-http_ssl_module --without-http_rewrite_module --with-cc-opt="-DZLIB" --with-openssl=~/Downloads/openssl-0.9.8zb # set --with-cc-opt to pass DZLIB option to the openssl compiler so it doesn't get removed # this doesn't work either
 #sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L/usr/local/ssl/lib" # try to set link to source and libraries instead of to source (which would cause a fresh re-compile) # also doesn't work, still complains it can't find openssl
-ln -s /usr/local/ssl/lib /usr/local/lib/openssl
+#ln -s /usr/local/ssl/lib /usr/local/lib/openssl
 #sudo ./configure --with-http_ssl_module --without-http_rewrite_module
+sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L /home/noemi/Downloads/openssl-0.9.8zb -lssl -lcrypto -lz -ldl -static-libgcc" # this compiles nginx properly! and openssl version -a still has the DZLIB flag! But the Server Hello packet still has no compression methods
 sudo make
 sudo make install
 
@@ -93,11 +94,11 @@ alias nginx=/usr/local/nginx/sbin/nginx
 cp /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf-bak
 ```
 
-[ will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP, nginx-1.*.6.tar.gz, openssl-0.9.*.tar.gz ]
+[ will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP, nginx-1.\*.6.tar.gz, openssl-0.9.\*.tar.gz ]
 
 [ Right now, I see two avenues:  
 - run the nginx `./configure` with `--with-openssl` and find a way to pass the `-DZLIB` flag into the openssl configuration/make  
-- find a way to specify the path to the openssl library to the nginx `./configure`
+- find a way to specify the path to the openssl library to the nginx `./configure` <- check :)
 - try with nginx 1.1.6 instead, or newer ]
 
 ### 2. Setting up the sites
