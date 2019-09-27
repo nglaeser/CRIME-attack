@@ -27,8 +27,8 @@ Installation of these dependencies is described in the [Set Up section](#set-up)
 Install the vulnerable browser on your VM. It seems only Chrome (or Chromium) was every truly vulnerable to CRIME, so in this demo I used [Chrome (Chromium) 15.0.875.0](https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F100002%2Fchrome-linux.zip?generation=1&alt=media).
 
 ```
-wget https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux\_x64%2F100002%2Fchrome-linux.zip?generation=1&alt=media
-unzip Linux\_x64\_100002\_chrome-linux.zip
+wget https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Linux_x64%2F100002%2Fchrome-linux.zip?generation=1&alt=media
+unzip Linux_x64_100002_chrome-linux.zip
 cd chrome-linux
 ./chrome-wrapper
 ```
@@ -61,9 +61,9 @@ Output from last command should look something like this (note the `DZLIB` compi
 ```
 OpenSSL 0.9.8zb 6 Aug 2014
 built on: Fri Sep 27 01:59:42 EDT 2019
-platform: linux-x86\_64
+platform: linux-x86_64
 options:  bn(64,64) md2(int) rc4(1x,char) des(idx,cisc,16,int) idea(int) blowfish(idx) 
-compiler: gcc -DZLIB -DOPENSSL\_THREADS -D\_REENTRANT -DDSO\_DLFCN -DHAVE\_DLFCN\_H -Wa,--noexecstack -m64 -DL\_ENDIAN -DTERMIO -O3 -Wall -DMD32\_REG\_T=int -DOPENSSL\_BN\_ASM\_MONT -DSHA1\_ASM -DSHA256\_ASM -DSHA512\_ASM -DMD5\_ASM -DAES\_ASM
+compiler: gcc -DZLIB -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -Wa,--noexecstack -m64 -DL_ENDIAN -DTERMIO -O3 -Wall -DMD32_REG_T=int -DOPENSSL_BN_ASM_MONT -DSHA1_ASM -DSHA256_ASM -DSHA512_ASM -DMD5_ASM -DAES_ASM
 OPENSSLDIR: "/usr/local/ssl"
 ```
 
@@ -74,7 +74,7 @@ Install an nginx version that supports SSL compression, such as [nginx 1.0.6](ht
 See [this article](https://www.thegeekstuff.com/2011/07/install-nginx-from-source/) about installing nginx from source. Here are the commands and options I used (use `sudo` as necessary):  
 
 ```
-sudo ./configure --with-http\_ssl\_module --without-http\_rewrite\_module --with-ld-opt="-L /home/noemi/Downloads/openssl-0.9.8zb -lssl -lcrypto -lz -ldl -static-libgcc" # this compiles nginx properly! and openssl version -a still has the DZLIB flag! But the Server Hello packet still has no compression methods
+sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L /home/noemi/Downloads/openssl-0.9.8zb -lssl -lcrypto -lz -ldl -static-libgcc" # this compiles nginx properly! and openssl version -a still has the DZLIB flag! But the Server Hello packet still has no compression methods
 sudo make
 sudo make install
 
@@ -121,10 +121,10 @@ http {
     # faceb00k server - HTTPS
     server {
         listen       443 ssl;
-        server\_name  faceb00k.com www.faceb00k.com;
-        ssl\_certificate path/to/faceb00k1.crt;
-        ssl\_certificate\_key path/to/faceb00k1.key;
-        ssl\_protocols SSLv2 SSLv3 TLSv1 TLSv1.1 TLSv1.2; # up to and including TLSv1.2 is vulnerable to CRIME 
+        server_name  faceb00k.com www.faceb00k.com;
+        ssl_certificate path/to/faceb00k1.crt;
+        ssl_certificate_key path/to/faceb00k1.key;
+        ssl_protocols SSLv2 SSLv3 TLSv1 TLSv1.1 TLSv1.2; # up to and including TLSv1.2 is vulnerable to CRIME 
 
         location / { 
             root   path/to/faceb00k; # folder containing files to serve
@@ -134,7 +134,7 @@ http {
     # cookies server
     server {
         listen       80; # this port can be whatever you want, 80 is default for HTTP
-        server\_name  cookies.com www.cookies.com;
+        server_name  cookies.com www.cookies.com;
 
         location / {
             root   path/to/cookies; # folder containing files to serve
