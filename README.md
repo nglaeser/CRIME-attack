@@ -90,6 +90,14 @@ See [this article](https://www.thegeekstuff.com/2011/07/install-nginx-from-sourc
 
 ```
 sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L /home/noemi/Downloads/openssl-0.9.8zb -lssl -lcrypto -lz -ldl -static-libgcc" # this compiles nginx properly! and openssl version -a still has the DZLIB flag! But the Server Hello packet still has no compression methods
+sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L /home/noemi/Downloads/openssl-0.9.8zb -Wl,-rpath,/home/noemi/Downloads/openssl-0.9.8zb -lssl -lcrypto -lz -ldl -static-libgcc" 
+# check that the correct libraries were linked
+ldd /usr/local/nginx/sbin/nginx
+# still doesn't have the right library dir
+
+# also tried
+export LD_LIBRARY_PATH="/path/to/Downloads/openssl-0.9.8zb
+
 sudo make
 sudo make install
 
@@ -100,6 +108,23 @@ alias nginx=/usr/local/nginx/sbin/nginx
 cp /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf-bak
 ```
 
+### 4. Python
+
+Alternative to nginx: trying python instead. 
+
+```
+python --version
+Python 2.7.10
+```
+
+```
+python
+>>> import BaseHTTPServer, SimpleHTTPServer
+>>> import ssl
+>>> httpd = BaseHTTPServer.HTTPServer(('localhost', 4443), SimpleHTTPServer.SimpleHTTPRequestHandler)
+>>> httpd.socket = ssl.wrap_socket (httpd.socket, certfile='/Users/noemi/Documents/UMD/fall19/CMSC818O-Security/attack/cert.pem', keyfile='/Users/noemi/Documents/UMD/fall19/CMSC818O-Security/attack/key.pem', server_side=True)
+>>> httpd.serve_forever()
+```
 
 ### 5. Setting up the mock sites
 
