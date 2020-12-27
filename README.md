@@ -17,6 +17,7 @@ Right now, I see these options:
 
 Installation of these dependencies is described in the [Set Up](#set-up) section; all source files/binaries are available in the [binaries folder](./binaries).
 
+* **Python 3**
 * **nginx:** for example [nginx 1.0.6]() (or [1.1.6]()?)
 * **an outdated version of OpenSSL:** [openssl-0.9.8zb]() and [openssl-0.9.7]()
 * **a browser with SSL compression:** [Chrome 15.0.0875.0]()

