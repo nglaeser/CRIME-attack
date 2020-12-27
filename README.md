@@ -259,8 +259,11 @@ Compression is only used over HTTPS, however, which encrypts packets, so unfortu
 
 ### 4. Proof of concept [[video]](https://www.youtube.com/watch?v=JwmNh9kpwdM)
 
-[A script by @koto and @xorninja](https://gist.github.com/koto/3696912) shows how a full attack would proceed with incremental cookie discovery. I made some slight edits to improve demo-ability, namely adding colors and pauses. Run with  
+[A script by @koto and @xorninja](https://gist.github.com/koto/3696912) shows how a full attack would proceed with incremental cookie discovery. I made some slight edits to improve demo-ability, namely adding colors and pauses. Run with Python 3: 
 
 ```
+python --version
+# Python 3.7.7
+
 python crime.py
 ```
