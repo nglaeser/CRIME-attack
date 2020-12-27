@@ -16,3 +16,8 @@ demo/*.mov
 imgs/create-cert.png
 imgs/pythonssl.jpeg
 imgs/tls.pdf
+
+# ?
+SimpleSecureHTTPServer.py
+
+ssl_attacks_survey.pdf
