@@ -4,3 +4,15 @@
 
 # certificate and key files
 *.pem
+
+# logs
+*.500
+
+# demo videos
+# available on YT
+demo/*.mov
+
+# images
+imgs/create-cert.png
+imgs/pythonssl.jpeg
+imgs/tls.pdf

@@ -223,7 +223,7 @@ reboot
 2. Open Chromium and access https://www.faceb00k.com.
 * If the page doesn't load, make sure you've run `nginx` to start the servers. 
 * In Wireshark (with the `ssl` filter), you should see a "Client Hello" packet. In the TLS header, you should see DEFLATE listed as a compression method:  
-![Compression Methods](compressionheader.png)
+![Compression Methods](imgs/compressionheader.png)
 * Now look at the "Server Hello" packet. Similarly, DEFLATE should be listed as a compression method in the TLS header. [I'm still having problems getting this part to work]
 
 3. Now navigate to www.cookies.com.
