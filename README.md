@@ -4,6 +4,22 @@ Presented: 1 Oct 2019
 
 # CRIME Attack Demo  
 
+## Table of Contents
+[To do](#to-do)  
+[Dependencies](#dependencies)  
+[Set-up](#set-up)  
+- [1. Ubuntu VM](#1-ubuntu-virtual-machine)
+- [2. Vulnerable Browser](#2-vulnerable-browser)
+- [3. OpenSSL](#3-openssl)
+- [4a. nginx](#4a-nginx) / [4b. Python](#4b-python)
+- [5. Set up the fake sites](#5-setting-up-the-mock-sites)
+- [6. Wireshark](#6-wireshark)
+
+[The attack](#the-attack)
+- [Background](#background)
+- [Simple Demo](#simple-demo)
+- [Proof of concept](#4-proof-of-concept)
+
 ## To do
 
 will add the following to a binaries folder: Ubuntu ISO, Chrome ZIP, nginx-1.\*.6.tar.gz, openssl-0.9.\*.tar.gz
@@ -25,7 +41,7 @@ Installation of these dependencies is described in the [Set Up](#set-up) section
 
 A VM image is available with all of this configuration already done ([here]()). If you choose to go that route, skip to [this section]().
 
-## Set Up
+## Set-up
 
 ### 1. Ubuntu Virtual Machine
 
@@ -83,7 +99,7 @@ compiler: gcc -DZLIB -DOPENSSL_THREADS -D_REENTRANT -DDSO_DLFCN -DHAVE_DLFCN_H -
 OPENSSLDIR: "/usr/local/ssl"
 ```
 
-### 4. nginx
+### 4a. nginx
 
 Install an nginx version that supports SSL compression, such as [nginx 1.0.6](http://nginx.org/download/). 
 
@@ -92,6 +108,7 @@ See [this article](https://www.thegeekstuff.com/2011/07/install-nginx-from-sourc
 ```
 sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L /home/noemi/Downloads/openssl-0.9.8zb -lssl -lcrypto -lz -ldl -static-libgcc" # this compiles nginx properly! and openssl version -a still has the DZLIB flag! But the Server Hello packet still has no compression methods
 sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L /home/noemi/Downloads/openssl-0.9.8zb -Wl,-rpath,/home/noemi/Downloads/openssl-0.9.8zb -lssl -lcrypto -lz -ldl -static-libgcc" 
+sudo ./configure --with-http_ssl_module --without-http_rewrite_module --with-ld-opt="-L /home/noemi/Downloads/openssl-0.9.8zb -Wl,-rpath,/home/noemi/Downloads/openssl-0.9.8zb -lstatic -lssl -lcrypto -lz -ldl -static-libgcc" # this broke it, once you try to run it it says it can't find 'nobody'
 # check that the correct libraries were linked
 ldd /usr/local/nginx/sbin/nginx
 # still doesn't have the right library dir
@@ -109,7 +126,7 @@ alias nginx=/usr/local/nginx/sbin/nginx
 cp /usr/local/nginx/conf/nginx.conf /usr/local/nginx/conf/nginx.conf-bak
 ```
 
-### 4. Python
+### 4b. Python
 
 Alternative to nginx: trying python instead. 
 
@@ -209,7 +226,16 @@ reboot
 
 ### Background
 
-### Simple Demo
+The idea behind the attack is described in [this presentation](demo/presentation.pdf).
+
+As explained there, the attacker needs to be able to inject her cookie guess into the text of a packet. In this demo, the malicious `cookies.com` site does this with an `<img>` tag, which has the effect of sending a `GET` request to `faceb00k.com` that contains both the true cookie and the cookie guess.
+
+When `faceb00k.com` is being accessed over HTTP, everything is sent in plaintext, so we can see the cookie guess for ourselves:
+![GET request with cookie inject](imgs/GETwithcookieinject.png)
+
+Compression is only used over HTTPS, however, which encrypts packets, so unfortunately we can't see the cookie or cookie guess in the packet if the user is using HTTPS. Before encrypting, the message is compressed, though, and DEFLATE compression will look for repeated sequences. Thus, if the cookie and cookie guess are the same, the packet will be shorter than if they are different! If the evil site `cookies.com` can make a bunch of guesses, it can use the packet length to guide it and eventually figure out the cookie.
+
+### Simple Demo [[video]](https://www.youtube.com/watch?v=VsbmErhNWxE)
 
 1. Open Wireshark (not through the commandline, just as usual through the GUI).
 * On the first page that pops up, pick "Loopback: lo0" as your interface. Now you're capturing on localhost!
@@ -231,7 +257,7 @@ reboot
 
 ...
 
-### 4. Proof of concept 
+### 4. Proof of concept [[video]](https://www.youtube.com/watch?v=JwmNh9kpwdM)
 
 [A script by @koto and @xorninja](https://gist.github.com/koto/3696912) shows how a full attack would proceed with incremental cookie discovery. I made some slight edits to improve demo-ability, namely adding colors and pauses. Run with  
 
